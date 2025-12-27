@@ -97,7 +97,7 @@ const Header = () => {
 
             {/* Actions */}
             <Space size="middle">
-                {/* <ThemeToggle /> */}
+                <ThemeToggle />
                 <Link href="/cart">
                     <Badge count={getCartCount()} showZero>
                         <Button type="text" icon={<ShoppingCartOutlined style={{ fontSize: 20 }} />} />

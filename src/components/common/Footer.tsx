@@ -37,10 +37,10 @@ const Footer: React.FC = () => {
             <Row gutter={[32, 32]} justify="center">
                 {/* Brand */}
                 <Col xs={24} md={8} style={{ textAlign: 'center' }}>
-                    <Title level={4} style={{ marginBottom: 8 }}>
+                    <Title level={4} style={{ marginBottom: 8, color: token.colorTextSecondary }}>
                         Markkam
                     </Title>
-                    <Text type="secondary">Premium E-commerce Experience</Text>
+                    <Text type="secondary" style={{ color: token.colorTextSecondary }}>Premium E-commerce Experience</Text>
                 </Col>
 
                 {/* Links */}
@@ -84,7 +84,7 @@ const Footer: React.FC = () => {
                     textAlign: 'center',
                 }}
             >
-                <Text type="secondary" style={{ fontSize: 14 }}>
+                <Text type="secondary" style={{ fontSize: 14, color: token.colorTextSecondary }}>
                     © {new Date().getFullYear()} Markkam. All rights reserved.
                 </Text>
             </div>

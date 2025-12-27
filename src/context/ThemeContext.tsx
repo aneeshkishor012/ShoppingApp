@@ -14,32 +14,30 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+    // ✅ Always start with LIGHT
     const [currentTheme, setCurrentTheme] = useState<ThemeType>('light');
-    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        setMounted(true);
-        const savedTheme = localStorage.getItem('theme') as ThemeType;
-        if (savedTheme) {
+        // ✅ Only respect user choice from localStorage
+        const savedTheme = localStorage.getItem('theme') as ThemeType | null;
+
+        if (savedTheme === 'light' || savedTheme === 'dark') {
             setCurrentTheme(savedTheme);
-        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            setCurrentTheme('dark');
         }
+        // ❌ No system dark-mode detection
     }, []);
 
     const toggleTheme = () => {
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        const newTheme: ThemeType = currentTheme === 'light' ? 'dark' : 'light';
         setCurrentTheme(newTheme);
         localStorage.setItem('theme', newTheme);
     };
 
-    // Removed blocking check for SSR
-    // if (!mounted) {
-    //     return <>{children}</>;
-    // }
-
-    // Use default 'light' algorithm during SSR to prevent mismatch errors or undefined contexts
-    const algorithm = currentTheme === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm;
+    // ✅ Light by default, dark only if user toggles
+    const algorithm =
+        currentTheme === 'dark'
+            ? theme.darkAlgorithm
+            : theme.defaultAlgorithm;
 
     return (
         <ThemeContext.Provider value={{ currentTheme, toggleTheme }}>
@@ -57,7 +55,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useTheme = () => {
     const context = useContext(ThemeContext);
-    if (context === undefined) {
+    if (!context) {
         throw new Error('useTheme must be used within a ThemeProvider');
     }
     return context;
