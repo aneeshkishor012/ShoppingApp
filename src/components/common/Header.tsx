@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout, Menu, Button, Badge, Space, Drawer, Dropdown, Avatar, Spin } from 'antd';
 import {
     ShoppingCartOutlined,
@@ -18,22 +18,16 @@ import {
     LoginOutlined
 } from '@ant-design/icons';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
-import { useNavigate } from "react-router-dom";
+import { usePathname } from 'next/navigation'; // ✅
 
 const { Header: AntHeader } = Layout;
 
 const Header = () => {
     const pathname = usePathname();
-    const { user, logout, isLoading } = useAuth();
-    console.log('Current User in Header:', user);
-
-    if (isLoading) {
-        <Spin />
-    }
+    const { isLoading, user, logout } = useAuth();
     const { getCartCount } = useCart();
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
@@ -61,7 +55,6 @@ const Header = () => {
         { type: 'divider' as const },
         { key: 'logout', label: 'Logout', onClick: logout, danger: true, icon: <LogoutOutlined /> },
     ];
-
 
     return (
         <AntHeader
@@ -104,7 +97,7 @@ const Header = () => {
 
             {/* Actions */}
             <Space size="middle">
-                <ThemeToggle />
+                {/* <ThemeToggle /> */}
                 <Link href="/cart">
                     <Badge count={getCartCount()} showZero>
                         <Button type="text" icon={<ShoppingCartOutlined style={{ fontSize: 20 }} />} />

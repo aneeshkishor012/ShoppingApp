@@ -9,7 +9,7 @@ import { mockProducts } from '@/lib/mockData';
 const { Title, Paragraph, Text } = Typography;
 
 export default function Home() {
-  const featuredProducts = mockProducts.slice(0, 4);
+  const featuredProducts = mockProducts.slice(0, 8);
 
   return (
     <>
@@ -21,7 +21,7 @@ export default function Home() {
         borderRadius: 12,
         marginBottom: 48
       }}>
-        <Title level={1}>Welcome to Shopping App</Title>
+        <Title level={1}>Welcome to Markkam</Title>
         <Paragraph style={{ fontSize: 18, maxWidth: 600, margin: '0 auto 24px' }}>
           Discover premium products at unbeatable prices. Shop the latest trends in electronics, fashion, and home decor.
         </Paragraph>

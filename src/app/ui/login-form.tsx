@@ -1,41 +1,45 @@
 'use client';
 
-import React, { startTransition } from 'react';
+import React, { useState } from 'react';
 import { Form, Input, Button, Alert } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { useActionState } from 'react'; // This hook is available in React 19 (which is installed) or Canary. If not, use generic state.
-import { authenticate } from '@/app/lib/actions';
-import { useSearchParams } from 'next/navigation';
+import { signIn } from 'next-auth/react';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 export default function LoginForm() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+  const [isPending, setIsPending] = useState(false);
 
-  // Note: authenticate action needs to handle the formData. 
-  // useActionState signature: [state, action, isPending]
-  const [errorMessage, formAction, isPending] = useActionState(
-    authenticate,
-    undefined,
-  );
+  const onFinish = async (values: any) => {
+    setIsPending(true);
+    setErrorMessage(undefined);
 
-  const onFinish = (values: any) => {
-    const formData = new FormData();
-    formData.append('email', values.email);
-    formData.append('password', values.password);
-    // Since we want to redirect to callbackUrl, ideally we pass it to the server action
-    // But the current authenticate action in actions.ts creates the redirect internally.
-    // We can stick to the action's existing logic which likely hardcodes or implies redirection.
-    // However, looking at the previous user edit, they wanted to use callbackUrl.
-    // The previous actions.ts authenticate function calls `signIn` from next-auth.
-    // next-auth signIn handles callbackUrl if passed as second argument options.
+    try {
+      const result = await signIn('credentials', {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
 
-    // For now, let's just trigger the formAction and let actions.ts handle it.
-    // If actions.ts calls signIn which defaults to /, that's fine. 
-    // If we want to enforce callbackUrl, we might need to update actions.ts or pass it as hidden input.
-    formData.append('redirectTo', callbackUrl);
-    startTransition(() => {
-      formAction(formData);
-    });
+      if (result?.error) {
+        if (result.error === 'CredentialsSignin') {
+          setErrorMessage('Invalid credentials.');
+        } else {
+          setErrorMessage('Something went wrong.');
+        }
+      } else {
+        // Successful login
+        router.push(callbackUrl);
+        router.refresh();
+      }
+    } catch (error) {
+      setErrorMessage('Something went wrong.');
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (

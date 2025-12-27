@@ -21,8 +21,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { message } = App.useApp();
     const { data: session, status } = useSession();
-    console.log('AuthContext: session:', session);
-    console.log('AuthContext: status:', status);
     const [user, setUser] = useState<User | null>(null);
     const isLoading = status === 'loading';
     const router = useRouter();

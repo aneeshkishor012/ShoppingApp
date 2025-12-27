@@ -5,6 +5,7 @@ import { z } from 'zod';
 import type { User } from '@/app/lib/definitions';
 import bcrypt from 'bcryptjs';
 import postgres from 'postgres';
+import { cookies } from 'next/headers';
 
 const sql = postgres(process.env.DATABASE_URL!, { ssl: 'require' });
 

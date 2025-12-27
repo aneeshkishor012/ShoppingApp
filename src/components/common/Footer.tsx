@@ -1,38 +1,92 @@
 'use client';
 
 import React from 'react';
-import { Layout, Typography, Row, Col, Space } from 'antd';
-import { GithubOutlined, TwitterOutlined, LinkedinOutlined } from '@ant-design/icons';
+import { Layout, Typography, Row, Col, Space, theme } from 'antd';
+import {
+    GithubOutlined,
+    TwitterOutlined,
+    LinkedinOutlined,
+} from '@ant-design/icons';
 
 const { Footer: AntFooter } = Layout;
-const { Text, Link } = Typography;
+const { Text, Link, Title } = Typography;
 
 const Footer: React.FC = () => {
+    const { token } = theme.useToken();
+
+    const contactLinks = [
+        { key: 'github', icon: <GithubOutlined />, link: 'https://github.com' },
+        { key: 'twitter', icon: <TwitterOutlined />, link: 'https://twitter.com' },
+        { key: 'linkedin', icon: <LinkedinOutlined />, link: 'https://linkedin.com' },
+    ];
+
+    const footerLinks = [
+        { key: 'about', title: 'About Us', link: '/about' },
+        { key: 'contact', title: 'Contact', link: '/contact' },
+        { key: 'terms', title: 'Terms of Service', link: '/terms' },
+    ];
+
     return (
-        <AntFooter style={{ textAlign: 'center' }}>
-            <Row gutter={[16, 16]} justify="center">
-                <Col xs={24} sm={8}>
-                    <Text strong>Markkam</Text>
-                    <br />
+        <AntFooter
+            style={{
+                background: token.colorBgContainer,
+                borderTop: `1px solid ${token.colorBorderSecondary}`,
+                padding: '48px 24px',
+            }}
+        >
+            <Row gutter={[32, 32]} justify="center">
+                {/* Brand */}
+                <Col xs={24} md={8} style={{ textAlign: 'center' }}>
+                    <Title level={4} style={{ marginBottom: 8 }}>
+                        Markkam
+                    </Title>
                     <Text type="secondary">Premium E-commerce Experience</Text>
                 </Col>
-                <Col xs={24} sm={8}>
-                    <Space orientation="vertical">
-                        <Link href="#">About Us</Link>
-                        <Link href="#">Contact</Link>
-                        <Link href="#">Terms of Service</Link>
+
+                {/* Links */}
+                <Col xs={24} md={8} style={{ textAlign: 'center' }}>
+                    <Space direction="vertical">
+                        {footerLinks.map((item) => (
+                            <Link
+                                key={item.key}
+                                href={item.link}
+                                style={{ color: token.colorTextSecondary }}
+                            >
+                                {item.title}
+                            </Link>
+                        ))}
                     </Space>
                 </Col>
-                <Col xs={24} sm={8}>
+
+                {/* Social Icons */}
+                <Col xs={24} md={8} style={{ textAlign: 'center' }}>
                     <Space size="large">
-                        <Link href="#" target="_blank"><GithubOutlined style={{ fontSize: 24 }} /></Link>
-                        <Link href="#" target="_blank"><TwitterOutlined style={{ fontSize: 24 }} /></Link>
-                        <Link href="#" target="_blank"><LinkedinOutlined style={{ fontSize: 24 }} /></Link>
+                        {contactLinks.map((item) => (
+                            <Link
+                                key={item.key}
+                                href={item.link}
+                                target="_blank"
+                                style={{ fontSize: 26, color: token.colorTextSecondary }}
+                            >
+                                {item.icon}
+                            </Link>
+                        ))}
                     </Space>
                 </Col>
             </Row>
-            <div style={{ marginTop: 24 }}>
-                <Text type="secondary">© {new Date().getFullYear()} Shopping App. All Rights Reserved.</Text>
+
+            {/* Bottom */}
+            <div
+                style={{
+                    marginTop: 32,
+                    borderTop: `1px solid ${token.colorBorderSecondary}`,
+                    paddingTop: 16,
+                    textAlign: 'center',
+                }}
+            >
+                <Text type="secondary" style={{ fontSize: 14 }}>
+                    © {new Date().getFullYear()} Markkam. All rights reserved.
+                </Text>
             </div>
         </AntFooter>
     );
