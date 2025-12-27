@@ -6,6 +6,9 @@ export const authConfig = {
     },
     callbacks: {
         authorized({ auth, request: { nextUrl } }) {
+            console.log('Auth Callback - Auth:', auth);
+            console.log('Auth Callback - Next URL:', nextUrl);
+
             const isLoggedIn = !!auth?.user;
             // Redirect to home if logged in and trying to access login page or root
             if (isLoggedIn && nextUrl.pathname === '/login') {

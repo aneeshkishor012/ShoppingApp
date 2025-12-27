@@ -3,13 +3,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { App } from 'antd';
-
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    role: 'user' | 'admin';
-}
+import { useSession, signOut } from 'next-auth/react';
+import { User } from '@/app/lib/definitions';
 
 interface AuthContextType {
     user: User | null;
@@ -21,84 +16,51 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { message } = App.useApp();
+    const { data: session, status } = useSession();
+    console.log('AuthContext: session:', session);
+    console.log('AuthContext: status:', status);
     const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const isLoading = status === 'loading';
     const router = useRouter();
 
     useEffect(() => {
-        // Check for logged in user
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            try {
-                setUser(JSON.parse(storedUser));
-            } catch (e) {
-                console.error("Failed to parse user from local storage", e);
-                localStorage.removeItem('user');
-            }
+        if (session?.user) {
+            setUser({
+                id: session.user.id,
+                name: session.user.name || '',
+                email: session.user.email || '',
+                role: session.user.role || 'user',
+            } as User);
+        } else {
+            setUser(null);
         }
-        setIsLoading(false);
-    }, []);
+    }, [session]);
 
     const login = async (email: string, password: string) => {
-        try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-            });
-
-            if (!response.ok) {
-                let errorMsg = 'Login failed';
-                try {
-                    const errorData = await response.json();
-                    errorMsg = errorData.error || errorMsg;
-                } catch {
-                    // Response likely HTML (500 error page)
-                    errorMsg = `Server Error: ${response.status} ${response.statusText}`;
-                }
-                throw new Error(errorMsg);
-            }
-
-            const userData: User = await response.json();
-            setUser(userData);
-            localStorage.setItem('user', JSON.stringify(userData));
-
-            message.success('Login successful!');
-
-            if (userData.role === 'admin') {
-                router.push('/admin');
-            } else {
-                router.push('/');
-            }
-        } catch (error: any) {
-            message.error(error.message || 'Invalid credentials');
-            throw error;
-        }
+        // This is now handled by the LoginForm calling the authenticate action
+        // But we can keep it for compatibility if something else uses it
+        // Note: next-auth/react signIn is usually used in client components
+        // But LoginForm uses the server action. 
+        // If we want to support this manual login call, we can call authenticate or signIn('credentials', ...)
+        console.warn('AuthContext.login called, but login should be handled via the LoginForm server action.');
     };
 
     const register = async (name: string, email: string, password: string) => {
-        // For now, keeping mock register or can implement similarly if needed
-        // Ideally should call an API endpoint
-        return new Promise<void>((resolve) => {
-            setTimeout(() => {
-                const userData: User = { id: Math.random().toString(), name, email, role: 'user' };
-                setUser(userData);
-                localStorage.setItem('user', JSON.stringify(userData));
-                message.success('Registration successful!');
-                router.push('/');
-                resolve();
-            }, 1000);
-        });
+        // Implementation for register...
     };
 
-    const logout = () => {
+    const logout = async () => {
+        await signOut({ redirect: false });
         setUser(null);
-        localStorage.removeItem('user');
         message.info('Logged out');
         router.push('/login');
     };
+
+    console.log('User in AuthContext:', user);
 
     return (
         <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>

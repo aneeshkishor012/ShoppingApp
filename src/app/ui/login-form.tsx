@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { startTransition } from 'react';
 import { Form, Input, Button, Alert } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useActionState } from 'react'; // This hook is available in React 19 (which is installed) or Canary. If not, use generic state.
@@ -33,7 +33,9 @@ export default function LoginForm() {
     // If actions.ts calls signIn which defaults to /, that's fine. 
     // If we want to enforce callbackUrl, we might need to update actions.ts or pass it as hidden input.
     formData.append('redirectTo', callbackUrl);
-    formAction(formData);
+    startTransition(() => {
+      formAction(formData);
+    });
   };
 
   return (

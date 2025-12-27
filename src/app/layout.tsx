@@ -15,9 +15,7 @@ export const metadata: Metadata = {
   description: 'A modern e-commerce application',
 };
 
-import { App } from 'antd';
-
-// ... imports
+import Providers from '@/components/Providers';
 
 export default function RootLayout({
   children,
@@ -27,19 +25,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className} style={{ margin: 0, padding: 0 }}>
-        <StyledComponentsRegistry>
-          <ThemeProvider>
-            <App>
-              <AuthProvider>
-                <CartProvider>
-                  <AppLayout>
-                    {children}
-                  </AppLayout>
-                </CartProvider>
-              </AuthProvider>
-            </App>
-          </ThemeProvider>
-        </StyledComponentsRegistry>
+        <Providers>
+          <AppLayout>
+            {children}
+          </AppLayout>
+        </Providers>
       </body>
     </html>
   );

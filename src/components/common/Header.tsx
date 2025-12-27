@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Layout, Menu, Button, Badge, Space, Drawer, Dropdown, Avatar } from 'antd';
+import { Layout, Menu, Button, Badge, Space, Drawer, Dropdown, Avatar, Spin } from 'antd';
 import {
     ShoppingCartOutlined,
     UserOutlined,
@@ -13,33 +13,45 @@ import {
     StarOutlined,
     FileTextOutlined,
     QuestionCircleOutlined,
-    GlobalOutlined
+    GlobalOutlined,
+    DownOutlined,
+    LoginOutlined
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
+import { useNavigate } from "react-router-dom";
 
 const { Header: AntHeader } = Layout;
 
-const Header: React.FC = () => {
+const Header = () => {
     const pathname = usePathname();
-    const { user, logout } = useAuth();
+    const { user, logout, isLoading } = useAuth();
+    console.log('Current User in Header:', user);
+
+    if (isLoading) {
+        <Spin />
+    }
     const { getCartCount } = useCart();
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-
-    // ... items ...
-
-    // down in return
-
 
     const menuItems = [
         { key: '/', label: <Link href="/">Home</Link> },
         { key: '/products', label: <Link href="/products">Products</Link> },
     ];
 
-    const userMenuItems = [
+    const userMenuItemsBeforeLogin = [
+        {
+            key: 'login',
+            label: <Link href="/login">Login</Link>,
+            danger: false,
+            icon: <Link href="/login"><LoginOutlined /></Link>,
+        },
+    ];
+
+    const userMenuItemsAfterLogin = [
         { key: 'settings', label: 'Settings', icon: <SettingOutlined /> },
         { key: 'edit-profile', label: 'Edit Profile', icon: <EditOutlined /> },
         { key: 'review', label: 'Review', icon: <StarOutlined /> },
@@ -49,6 +61,7 @@ const Header: React.FC = () => {
         { type: 'divider' as const },
         { key: 'logout', label: 'Logout', onClick: logout, danger: true, icon: <LogoutOutlined /> },
     ];
+
 
     return (
         <AntHeader
@@ -98,7 +111,7 @@ const Header: React.FC = () => {
                     </Badge>
                 </Link>
                 {user ? (
-                    <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
+                    <Dropdown menu={{ items: userMenuItemsAfterLogin }} trigger={['click']}>
                         <Space style={{ cursor: 'pointer' }}>
                             <Avatar style={{ backgroundColor: '#f56a00', verticalAlign: 'middle' }}>
                                 {user.name ? user.name.charAt(0).toUpperCase() : <UserOutlined />}
@@ -106,9 +119,11 @@ const Header: React.FC = () => {
                         </Space>
                     </Dropdown>
                 ) : (
-                    <Link href="/login">
-                        <Button type="primary" icon={<UserOutlined />} />
-                    </Link>
+                    <Dropdown menu={{ items: userMenuItemsBeforeLogin }} trigger={['click']}>
+                        <a onClick={e => e.preventDefault()}>
+                            <Button type="primary" icon={<UserOutlined />} />
+                        </a>
+                    </Dropdown>
                 )}
             </Space>
 
@@ -117,7 +132,7 @@ const Header: React.FC = () => {
                 placement="left"
                 onClose={() => setMobileMenuOpen(false)}
                 open={mobileMenuOpen}
-                size={"200px"}
+                size={200}
                 closable={false}
             >
                 <Menu
